@@ -11,10 +11,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   void _onOtpChanged(String value, int index) {
     if (value.length == 1 && index < 3) {
-      FocusScope.of(context).nextFocus(); // Move to the next field
+      FocusScope.of(context).nextFocus();
     }
     if (value.isEmpty && index > 0) {
-      FocusScope.of(context).previousFocus(); // Move to the previous field if backspace is pressed
+      FocusScope.of(context).previousFocus();
     }
 
     // Check if all OTP fields are filled
@@ -23,7 +23,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   }
 
   void _verifyOtp() {
-    // Simulated OTP for testing purposes (could be fetched from an API in a real app)
     String correctOtp = "1234";
     String enteredOtp = _otpControllers.map((controller) => controller.text).join();
 
@@ -98,7 +97,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
             Container(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _isOtpValid ? _verifyOtp : null, // Call verify function only if OTP is valid
+                onPressed: _isOtpValid ? _verifyOtp : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _isOtpValid ? Color(0xFF07574B) : Colors.grey,
                   shape: RoundedRectangleBorder(
@@ -119,8 +118,4 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   }
 }
 
-void main() {
-  runApp(MaterialApp(
-    home: OtpVerificationScreen(),
-  ));
-}
+

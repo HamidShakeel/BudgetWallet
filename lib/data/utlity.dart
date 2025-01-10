@@ -86,17 +86,6 @@ List<Add_data> year() {
   return a;
 }
 
-int total_chart(List<Add_data> history2) {
-  List a = [0, 0];
-
-  for (var i = 0; i < history2.length; i++) {
-    a.add(history2[i].IN == 'Income'
-        ? int.parse(history2[i].amount)
-        : int.parse(history2[i].amount) * -1);
-  }
-  totals = a.reduce((value, element) => value + element);
-  return totals;
-}
 
 List time(List<Add_data> history2, bool hour) {
   List<Add_data> a = [];
@@ -116,7 +105,6 @@ List time(List<Add_data> history2, bool hour) {
         }
       }
     }
-    total.add(total_chart(a));
     a.clear();
     c = counter;
   }

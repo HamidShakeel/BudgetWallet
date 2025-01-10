@@ -14,8 +14,8 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
 
-  bool passwordVisible = false; // For password visibility toggle
-  bool confirmPasswordVisible = false; // For confirm password visibility toggle
+  bool passwordVisible = false;
+  bool confirmPasswordVisible = false;
 
   @override
   Widget build(BuildContext context) {
@@ -56,6 +56,20 @@ class _SignupPageState extends State<SignupPage> {
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.text,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+                  LengthLimitingTextInputFormatter(20),
+                  TextInputFormatter.withFunction((oldValue, newValue) {
+                    String text = newValue.text;
+                    if (text.isNotEmpty) {
+                      text = text[0].toUpperCase() + text.substring(1);
+                    }
+                    return TextEditingValue(
+                      text: text,
+                      selection: TextSelection.collapsed(offset: text.length),
+                    );
+                  }),
+                ],
               ),
               SizedBox(height: 35),
               TextFormField(
@@ -169,9 +183,8 @@ class _SignupPageState extends State<SignupPage> {
       return false;
     }
 
-    // Allow only letters (a-z, A-Z)
-    if (!RegExp(r'^[a-zA-Z]+$').hasMatch(usernameController.text)) {
-      _showError(context, "Only letters (a-z, A-Z) are allowed in the username.");
+    if (!RegExp(r'^[A-Z][a-zA-Z\s]*$').hasMatch(usernameController.text)) {
+      _showError(context, "Username must start with a capital letter and contain only letters or spaces.");
       return false;
     }
 

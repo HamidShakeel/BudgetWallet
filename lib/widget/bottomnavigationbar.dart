@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_on_boarding/screens/Statistics.dart';
 import 'package:flutter_on_boarding/screens/add.dart';
-import 'package:flutter_on_boarding/screens/home.dart';
+import 'package:flutter_on_boarding/screens/homeMain.dart';
+
 class Bottom extends StatefulWidget {
   const Bottom({Key? key}) : super(key: key);
 
@@ -10,8 +10,8 @@ class Bottom extends StatefulWidget {
 }
 
 class _BottomState extends State<Bottom> {
-  int index_color = 1;
-  List Screen = [Home(), Statistics(), Home(), Statistics()];
+  int index_color = 0;
+  List Screen = [Home(),Home(),Home(),Home()];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,11 +63,14 @@ class _BottomState extends State<Bottom> {
                     index_color = 2;
                   });
                 },
-                child: Icon(
-                  Icons.account_balance_wallet_outlined,
-                  size: 30,
-                  color: index_color == 2 ? Color(0xff368983) : Colors.grey,
+                child: Image.asset(
+                  'assets/chatbot.png',
+                  width: 30,
+                  height: 30,
+                  color: index_color == 2 ? const Color(0xff368983) : Colors.grey,
+                  colorBlendMode: BlendMode.srcIn,
                 ),
+
               ),
               GestureDetector(
                 onTap: () {

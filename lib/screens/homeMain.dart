@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_on_boarding/data/model/add_date.dart';
-import 'package:flutter_on_boarding/data/utility.dart';
+import 'package:flutter_on_boarding/data/utlity.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
-
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
 
@@ -19,9 +18,9 @@ class _HomeState extends State<Home> {
     "Tuesday",
     "Wednesday",
     "Thursday",
-    'friday',
-    'saturday',
-    'sunday'
+    'Friday',
+    'Saturday',
+    'Sunday'
   ];
   @override
   Widget build(BuildContext context) {
@@ -77,19 +76,68 @@ class _HomeState extends State<Home> {
   }
 
   Widget getList(Add_data history, int index) {
-    return Dismissible(
-        key: UniqueKey(),
-        onDismissed: (direction) {
-          history.delete();
-        },
-        child: get(index, history));
+    return GestureDetector(
+      onTap: () {
+        // Navigate to an edit screen or open a dialog to edit the transaction
+        _editTransactionDialog(context, history);
+      },
+      child: get(index, history),
+    );
   }
+
+  Future<void> _editTransactionDialog(BuildContext context, Add_data history) async {
+    final TextEditingController amountController = TextEditingController(text: history.amount);
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Edit Transaction'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Make the name field non-editable
+              TextField(
+                controller: TextEditingController(text: history.name),
+                decoration: InputDecoration(labelText: 'Name'),
+                enabled: false, // Disable editing of the name field
+              ),
+              TextField(
+                controller: amountController,
+                decoration: InputDecoration(labelText: 'Amount'),
+                keyboardType: TextInputType.number,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Save changes to the amount only
+                setState(() {
+                  history.amount = amountController.text;
+                  history.save(); // Save the updated object in Hive
+                });
+                Navigator.pop(context);
+              },
+              child: Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
 
   ListTile get(int index, Add_data history) {
     return ListTile(
       leading: ClipRRect(
         borderRadius: BorderRadius.circular(5),
-        child: Image.asset('images/${history.name}.png', height: 40),
+        child: Image.asset('assets/${history.name}.png', height: 30),
       ),
       title: Text(
         history.name,
@@ -267,7 +315,7 @@ class _HomeState extends State<Home> {
                         children: [
                           CircleAvatar(
                             radius: 13,
-                            backgroundColor: Color.fromARGB(255, 85, 145, 141),
+                            backgroundColor: Color.fromARGB(255, 31, 104, 100),
                             child: Icon(
                               Icons.arrow_upward,
                               color: Colors.white,

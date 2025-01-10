@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "1047020676551",
-    "project_id": "budgetwallet-baabb",
-    "storage_bucket": "budgetwallet-baabb.firebasestorage.app"
+    "project_number": "870954853048",
+    "project_id": "budgetwallet-5e2b1",
+    "storage_bucket": "budgetwallet-5e2b1.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1047020676551:android:a2a999b1390f1c7646a5e2",
+        "mobilesdk_app_id": "1:870954853048:android:2c7c862c73d2ff576fca4d",
         "android_client_info": {
           "package_name": "com.example.budgetwallet"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAkBHsxGOEi_kp_p3dpuTi_9bOPvS86zAg"
+          "current_key": "AIzaSyDkcSwtFnq-k62nR3lrAQohlrxdgqwlXF0"
         }
       ],
       "services": {

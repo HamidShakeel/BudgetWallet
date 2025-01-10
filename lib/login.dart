@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_on_boarding/screens/home.dart';
+import 'package:flutter_on_boarding/widget/bottomnavigationbar.dart';
 import 'forget_password.dart';
 import 'signin.dart';
 
@@ -11,12 +11,11 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool rememberPassword = false;
-  bool passwordVisible = false; // For password visibility toggle
+  bool passwordVisible = false;
   final _formSignInKey = GlobalKey<FormState>();
 
-  // These should be the values from the SignupPage after the user registers
-  final String savedEmail = 'hamidshakeel@gmail.com'; // Example email
-  final String savedPassword = 'password123'; // Example password
+  final String savedEmail = 'hamid@gmail.com';
+  final String savedPassword = 'password123';
 
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -24,13 +23,10 @@ class _LoginPageState extends State<LoginPage> {
   void _validateLogin() {
     if (_formSignInKey.currentState?.validate() ?? false) {
       if (emailController.text == savedEmail && passwordController.text == savedPassword) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login Successful!')),
-        );
-        // Navigate to the main_dashboard.dart page
+        
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => Home()),
+          MaterialPageRoute(builder: (context) => Bottom()), // Navigate to your Bottom page
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -38,6 +34,14 @@ class _LoginPageState extends State<LoginPage> {
         );
       }
     }
+  }
+
+
+  void _googleLogin() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => SignInPage()),
+    );
   }
 
   @override
@@ -124,7 +128,9 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
 
-                  // Remember Me & Forget Password Row
+
+
+
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 40),
                     child: Row(
@@ -192,17 +198,44 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
 
-                  // Google Login Icon
-                  const SizedBox(height: 5),
-                  Center(
-                    child: GestureDetector(
-                      onTap: () {
-                        // Handle Google login here
-                      },
-                      child: Image.asset('assets/google_logo.png', height: 150),
+                  // Google Login Button
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(40),
+                        border: Border.all(color: Colors.black),
+                      ),
+                      child: MaterialButton(
+                        minWidth: double.infinity,
+                        onPressed: _googleLogin,
+                        color: const Color(0xFF07574B),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              'assets/google_logo.png',
+                              height: 45,
+                            ),
+                            const SizedBox(width: 10),
+                            const Text(
+                              "Login with Google",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-
                   // Sign Up Option
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -232,4 +265,7 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
+}
+
+SignInPage() {
 }

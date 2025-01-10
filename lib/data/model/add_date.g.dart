@@ -1,6 +1,6 @@
 
-import 'package:hive_flutter/hive_flutter.dart';
-import 'add_date.dart';
+part of 'add_date.dart';
+
 class AdddataAdapter extends TypeAdapter<Add_data> {
   @override
   final int typeId = 1;

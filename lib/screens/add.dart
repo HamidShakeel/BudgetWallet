@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_on_boarding/data/model/add_date.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class Add_Screen extends StatefulWidget {
   const Add_Screen({Key? key});
@@ -11,35 +12,32 @@ class Add_Screen extends StatefulWidget {
 
 class _Add_ScreenState extends State<Add_Screen> {
   final box = Hive.box<Add_data>('data');
-  DateTime date = new DateTime.now();
-  String? selctedItem;
-  String? selctedItemi;
-  final TextEditingController expalin_C = TextEditingController();
-  FocusNode ex = FocusNode();
-  final TextEditingController amount_c = TextEditingController();
-  FocusNode amount_ = FocusNode();
-  final List<String> _item = [
-    'food',
-    "Transfer",
-    "Transportation",
-    "Education"
+  DateTime date = DateTime.now();
+  String? selectedCategory;
+  String? selectedType;
+  final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController amountController = TextEditingController();
+  final List<String> categories = [
+    "Food",
+    "Transport",
+    "Utility",
+    "Groceries",
+    "Merchantise"
   ];
-  final List<String> _itemei = [
-    'Income',
-    "Expand",
-  ];
+  final List<String> entryTypes = ['Online', "Cash"];
+
+  // Speech-to-Text variables
+  late stt.SpeechToText _speech;
+  bool _isListening = false;
+  String _voiceInput = "";
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    ex.addListener(() {
-      setState(() {});
-    });
-    amount_.addListener(() {
-      setState(() {});
-    });
+    _speech = stt.SpeechToText();
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
@@ -47,10 +45,10 @@ class _Add_ScreenState extends State<Add_Screen> {
         child: Stack(
           alignment: AlignmentDirectional.center,
           children: [
-            background_container(context),
+            backgroundContainer(context),
             Positioned(
               top: 120,
-              child: main_container(),
+              child: mainContainer(),
             ),
           ],
         ),
@@ -58,7 +56,7 @@ class _Add_ScreenState extends State<Add_Screen> {
     );
   }
 
-  Container main_container() {
+  Container mainContainer() {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
@@ -69,53 +67,126 @@ class _Add_ScreenState extends State<Add_Screen> {
       child: Column(
         children: [
           SizedBox(height: 50),
-          name(),
+          categoryDropdown(),
           SizedBox(height: 30),
-          explain(),
+          descriptionField(),
           SizedBox(height: 30),
-          amount(),
+          amountField(),
           SizedBox(height: 30),
-          How(),
+          typeDropdown(),
           SizedBox(height: 30),
-          date_time(),
+          dateField(),
           Spacer(),
-          save(),
+          actionButtons(),
           SizedBox(height: 25),
         ],
       ),
     );
   }
 
-  GestureDetector save() {
-    return GestureDetector(
-      onTap: () {
-        var add = Add_data(
-            selctedItemi!, amount_c.text, date, expalin_C.text, selctedItem!);
-        box.add(add);
-        Navigator.of(context).pop();
-      },
-      child: Container(
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          color: Color(0xff368983),
-        ),
-        width: 120,
-        height: 50,
-        child: Text(
-          'Save',
-          style: TextStyle(
-            fontFamily: 'f',
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-            fontSize: 17,
+  Widget actionButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        // Cash In Button
+        ElevatedButton(
+          onPressed: () {
+            if (selectedCategory != null) {
+              var newEntry = Add_data(
+                'Income',
+                amountController.text,
+                date,
+                descriptionController.text,
+                selectedCategory!,
+              );
+              box.add(newEntry);
+              Navigator.of(context).pop();
+            } else {
+              showMessage("Please select a category.");
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.green,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          child: Text(
+            'Cash In',
+            style: TextStyle(color: Colors.white),
           ),
         ),
+        // Cash Out Button
+        ElevatedButton(
+          onPressed: () {
+            if (selectedCategory != null) {
+              var newEntry = Add_data(
+                'Expense',
+                amountController.text,
+                date,
+                descriptionController.text,
+                selectedCategory!,
+              );
+              box.add(newEntry);
+              Navigator.of(context).pop();
+            } else {
+              showMessage("Please select a category.");
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          child: Text(
+            'Cash Out',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Speech-to-Text listening function
+  void _listen() async {
+    if (!_isListening) {
+      bool available = await _speech.initialize(
+        onStatus: (val) {
+          print('onStatus: $val');
+          if (val == 'notListening') {
+            setState(() => _isListening = false);
+          }
+        },
+        onError: (val) => print('onError: $val'),
+      );
+      if (available) {
+        setState(() => _isListening = true);
+        _speech.listen(
+          onResult: (val) => setState(() {
+            _voiceInput = val.recognizedWords;
+            descriptionController.text =
+                _voiceInput; // Set voice input as the description
+          }),
+        );
+      }
+    } else {
+      setState(() => _isListening = false);
+      _speech.stop();
+    }
+  }
+
+  // Function to show a SnackBar message
+  void showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.green,
       ),
     );
   }
 
-  Widget date_time() {
+  Widget dateField() {
     return Container(
       alignment: Alignment.bottomLeft,
       decoration: BoxDecoration(
@@ -129,9 +200,9 @@ class _Add_ScreenState extends State<Add_Screen> {
               initialDate: date,
               firstDate: DateTime(2020),
               lastDate: DateTime(2100));
-          if (newDate == Null) return;
+          if (newDate == null) return;
           setState(() {
-            date = newDate!;
+            date = newDate;
           });
         },
         child: Text(
@@ -145,7 +216,7 @@ class _Add_ScreenState extends State<Add_Screen> {
     );
   }
 
-  Padding How() {
+  Padding typeDropdown() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15),
       child: Container(
@@ -159,38 +230,25 @@ class _Add_ScreenState extends State<Add_Screen> {
           ),
         ),
         child: DropdownButton<String>(
-          value: selctedItemi,
-          onChanged: ((value) {
+          value: selectedType,
+          onChanged: (value) {
             setState(() {
-              selctedItemi = value!;
+              selectedType = value!;
             });
-          }),
-          items: _itemei
+          },
+          items: entryTypes
               .map((e) => DropdownMenuItem(
-            child: Container(
-              alignment: Alignment.center,
-              child: Row(
-                children: [
-                  Text(
-                    e,
-                    style: TextStyle(fontSize: 18),
-                  )
-                ],
-              ),
+            child: Row(
+              children: [Text(e, style: TextStyle(fontSize: 18))],
             ),
             value: e,
           ))
               .toList(),
-          selectedItemBuilder: (BuildContext context) => _itemei
-              .map((e) => Row(
-            children: [Text(e)],
-          ))
-              .toList(),
           hint: Padding(
-            padding: const EdgeInsets.only(top: 12),
+            padding: const EdgeInsets.only(top: 6),
             child: Text(
-              'How',
-              style: TextStyle(color: Colors.grey),
+              'Payment Method',
+              style: TextStyle(color: Colors.black),
             ),
           ),
           dropdownColor: Colors.white,
@@ -201,50 +259,100 @@ class _Add_ScreenState extends State<Add_Screen> {
     );
   }
 
-  Padding amount() {
+  Padding amountField() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: TextField(
-        keyboardType: TextInputType.number,
-        focusNode: amount_,
-        controller: amount_c,
-        decoration: InputDecoration(
-          contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-          labelText: 'amount',
-          labelStyle: TextStyle(fontSize: 17, color: Colors.grey.shade500),
-          enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(width: 2, color: Color(0xffC5C5C5))),
-          focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(width: 2, color: Color(0xff368983))),
-        ),
+      child: Stack(
+        alignment: Alignment.centerRight,
+        children: [
+          TextField(
+            keyboardType: TextInputType.number,
+            controller: amountController,
+            decoration: InputDecoration(
+              contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+              labelText: 'Amount',
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(width: 2, color: Color(0xffC5C5C5)),
+              ),
+            ),
+          ),
+          // Voice Input Button
+          Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: GestureDetector(
+              onTap: () async {
+                if (!_isListening) {
+                  bool available = await _speech.initialize(
+                    onStatus: (val) {
+                      print('onStatus: $val');
+                      if (val == 'notListening') {
+                        setState(() => _isListening = false);
+                      }
+                    },
+                    onError: (val) => print('onError: $val'),
+                  );
+                  if (available) {
+                    setState(() => _isListening = true);
+                    _speech.listen(
+                      onResult: (val) => setState(() {
+                        _voiceInput = val.recognizedWords;
+                        amountController.text = _voiceInput; // Set voice input as the amount
+                      }),
+                    );
+                  }
+                } else {
+                  setState(() => _isListening = false);
+                  _speech.stop();
+                }
+              },
+              child: Icon(
+                _isListening ? Icons.mic : Icons.mic_none,
+                color: _isListening ?Color(0xff368983): Colors.grey,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Padding explain() {
+
+  Padding descriptionField() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: TextField(
-        focusNode: ex,
-        controller: expalin_C,
-        decoration: InputDecoration(
-          contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-          labelText: 'explain',
-          labelStyle: TextStyle(fontSize: 17, color: Colors.grey.shade500),
-          enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(width: 2, color: Color(0xffC5C5C5))),
-          focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(width: 2, color: Color(0xff368983))),
-        ),
+      child: Stack(
+        alignment: Alignment.centerRight,
+        children: [
+          TextField(
+            controller: descriptionController,
+            decoration: InputDecoration(
+              contentPadding:
+              EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+              labelText: 'Description',
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(width: 2, color: Color(0xffC5C5C5)),
+              ),
+            ),
+          ),
+          // Voice Input Button
+          Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: GestureDetector(
+              onTap: _listen,
+              child: Icon(
+                _isListening ? Icons.mic : Icons.mic_none,
+                color: _isListening ? Color(0xff368983): Colors.grey,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Padding name() {
+  Padding categoryDropdown() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15),
       child: Container(
@@ -252,56 +360,28 @@ class _Add_ScreenState extends State<Add_Screen> {
         width: 300,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            width: 2,
-            color: Color(0xffC5C5C5),
-          ),
+          border: Border.all(width: 2, color: Color(0xffC5C5C5)),
         ),
         child: DropdownButton<String>(
-          value: selctedItem,
-          onChanged: ((value) {
+          value: selectedCategory,
+          onChanged: (value) {
             setState(() {
-              selctedItem = value!;
+              selectedCategory = value!;
             });
-          }),
-          items: _item
+          },
+          items: categories
               .map((e) => DropdownMenuItem(
-            child: Container(
-              alignment: Alignment.center,
-              child: Row(
-                children: [
-                  Container(
-                    width: 40,
-                    child: Image.asset('images/${e}.png'),
-                  ),
-                  SizedBox(width: 10),
-                  Text(
-                    e,
-                    style: TextStyle(fontSize: 18),
-                  )
-                ],
-              ),
+            child: Row(
+              children: [Text(e, style: TextStyle(fontSize: 18))],
             ),
             value: e,
           ))
               .toList(),
-          selectedItemBuilder: (BuildContext context) => _item
-              .map((e) => Row(
-            children: [
-              Container(
-                width: 42,
-                child: Image.asset('images/${e}.png'),
-              ),
-              SizedBox(width: 5),
-              Text(e)
-            ],
-          ))
-              .toList(),
           hint: Padding(
-            padding: const EdgeInsets.only(top: 12),
+            padding: const EdgeInsets.only(top: 6),
             child: Text(
-              'Name',
-              style: TextStyle(color: Colors.grey),
+              'Category',
+              style: TextStyle(color: Colors.black),
             ),
           ),
           dropdownColor: Colors.white,
@@ -312,7 +392,7 @@ class _Add_ScreenState extends State<Add_Screen> {
     );
   }
 
-  Column background_container(BuildContext context) {
+  Column backgroundContainer(BuildContext context) {
     return Column(
       children: [
         Container(
@@ -325,36 +405,29 @@ class _Add_ScreenState extends State<Add_Screen> {
               bottomRight: Radius.circular(20),
             ),
           ),
-          child: Column(
-            children: [
-              SizedBox(height: 40),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 15),
-                child: Row(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15),
+            child: Column(
+              children: [
+                SizedBox(height: 30),
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    GestureDetector(
-                      onTap: () {
+                    IconButton(
+                      onPressed: () {
                         Navigator.of(context).pop();
                       },
-                      child: Icon(Icons.arrow_back, color: Colors.white),
+                      icon: Icon(Icons.arrow_back, color: Colors.white),
                     ),
                     Text(
-                      'Adding',
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white),
+                      'New Entry',
+                      style: TextStyle(fontSize: 20, color: Colors.white),
                     ),
-                    Icon(
-                      Icons.attach_file_outlined,
-                      color: Colors.white,
-                    )
+                    SizedBox(width: 30),
                   ],
                 ),
-              )
-            ],
+              ],
+            ),
           ),
         ),
       ],

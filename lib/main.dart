@@ -1,9 +1,5 @@
 
-import 'package:flutter_on_boarding/screens/home.dart';
-import 'package:flutter_on_boarding/screens/statistics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_on_boarding/data/model/add_date.g.dart';
-import 'package:flutter_on_boarding/widget/buttomnavigationbar.dart';
 import 'package:flutter_on_boarding/iintroduction_screen.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'data/model/add_date.dart';
@@ -25,13 +21,9 @@ class BudgetWallet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: false,
 
-        home: IntroScreen(),
-        routes: {
-
-          '/home': (context) => Bottom(),
-        }
+      home: IntroScreen(),
     );
   }
 }
