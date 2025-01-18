@@ -41,8 +41,8 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
               _buildTextField("Date of Birth *", "DD/MM/YYYY"),
               _buildDropdown("Profession *", ["Student", "Employee"]),
               _buildDropdown("Marital Status *", ["Single", "Married"]),
-
-              // Conditional field for family members if married
+              //
+              // // Conditional field for family members if married
               if (maritalStatus == "Married")
                 _buildTextField("Number of Family Members *", "Enter number"),
 
@@ -87,7 +87,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                       : null,
                   child: Text("Submit"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Color(0xFF07574B),
                     padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
@@ -183,7 +183,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
               }
             });
           },
-          activeColor: Colors.blue,
+          activeColor: Color(0xFF07574B),
         );
       }).toList(),
     );
