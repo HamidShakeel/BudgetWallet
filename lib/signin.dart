@@ -26,16 +26,16 @@ class _SignupPageState extends State<SignupPage> {
         backgroundColor: Colors.white,
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
-          icon: Icon(Icons.arrow_back_ios, color: Colors.black),
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
         ),
       ),
       body: SingleChildScrollView(
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 40),
+          padding: const EdgeInsets.symmetric(horizontal: 40),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
+              const Text(
                 "Sign up",
                 style: TextStyle(
                   fontSize: 30,
@@ -43,49 +43,41 @@ class _SignupPageState extends State<SignupPage> {
                   color: Colors.black,
                 ),
               ),
-              SizedBox(height: 15),
-              Text(
+              const SizedBox(height: 15),
+              const Text(
                 "Create an account, It's free",
                 style: TextStyle(fontSize: 15, color: Colors.black),
               ),
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
+              // Username Field
               TextFormField(
                 controller: usernameController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: "Username",
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.text,
                 inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
                   LengthLimitingTextInputFormatter(20),
-                  TextInputFormatter.withFunction((oldValue, newValue) {
-                    String text = newValue.text;
-                    if (text.isNotEmpty) {
-                      text = text[0].toUpperCase() + text.substring(1);
-                    }
-                    return TextEditingValue(
-                      text: text,
-                      selection: TextSelection.collapsed(offset: text.length),
-                    );
-                  }),
                 ],
               ),
-              SizedBox(height: 35),
+              const SizedBox(height: 35),
+              // Email Field
               TextFormField(
                 controller: emailController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: "Email",
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.emailAddress,
               ),
-              SizedBox(height: 35),
+              const SizedBox(height: 35),
+              // Password Field
               TextFormField(
                 controller: passwordController,
                 decoration: InputDecoration(
                   labelText: "Password",
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
                     icon: Icon(
                       passwordVisible ? Icons.visibility : Icons.visibility_off,
@@ -99,12 +91,13 @@ class _SignupPageState extends State<SignupPage> {
                 ),
                 obscureText: !passwordVisible,
               ),
-              SizedBox(height: 35),
+              const SizedBox(height: 35),
+              // Confirm Password Field
               TextFormField(
                 controller: confirmPasswordController,
                 decoration: InputDecoration(
                   labelText: "Confirm Password",
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
                     icon: Icon(
                       confirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
@@ -118,7 +111,7 @@ class _SignupPageState extends State<SignupPage> {
                 ),
                 obscureText: !confirmPasswordVisible,
               ),
-              SizedBox(height: 35),
+              const SizedBox(height: 35),
               ElevatedButton(
                 onPressed: () {
                   if (_validateInputs(context)) {
@@ -132,13 +125,13 @@ class _SignupPageState extends State<SignupPage> {
                 },
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
-                  backgroundColor: Color(0xFF07574B),
+                  backgroundColor: const Color(0xFF07574B),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(50),
                   ),
-                  minimumSize: Size(double.infinity, 50),
+                  minimumSize: const Size(double.infinity, 50),
                 ),
-                child: Text(
+                child: const Text(
                   "Sign up",
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
@@ -146,11 +139,11 @@ class _SignupPageState extends State<SignupPage> {
                   ),
                 ),
               ),
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
+                  const Text(
                     "Already have an account?",
                     style: TextStyle(color: Colors.black),
                   ),
@@ -159,7 +152,7 @@ class _SignupPageState extends State<SignupPage> {
                       context,
                       MaterialPageRoute(builder: (context) => LoginPage()),
                     ),
-                    child: Text(
+                    child: const Text(
                       " Login",
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
@@ -178,36 +171,28 @@ class _SignupPageState extends State<SignupPage> {
   }
 
   bool _validateInputs(BuildContext context) {
+    // Username validation
     if (usernameController.text.isEmpty) {
       _showError(context, "Username is required.");
       return false;
     }
 
-    if (!RegExp(r'^[A-Z][a-zA-Z\s]*$').hasMatch(usernameController.text)) {
-      _showError(context, "Username must start with a capital letter and contain only letters or spaces.");
-      return false;
-    }
-
-    if (usernameController.text.length > 20) {
-      _showError(context, "Username cannot be longer than 20 characters.");
+    if (!RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{1,20}$').hasMatch(usernameController.text)) {
+      _showError(
+          context, "Username must include both letters and numbers and be no more than 20 characters.");
       return false;
     }
 
     // Email validation
-    if (!RegExp(r'^[a-zA-Z0-9._%+-]+@gmail\.com$').hasMatch(emailController.text)) {
-      _showError(context, "Enter a valid Gmail address (e.g., example@gmail.com).");
+    if (!RegExp(r'^[a-zA-Z][a-zA-Z0-9._%+-]+@(gmail|yahoo|outlook|hotmail)\.com$')
+        .hasMatch(emailController.text)) {
+      _showError(
+          context, "Email must start with a letter and end with @gmail.com, @yahoo.com, etc.");
       return false;
     }
 
     // Password validation
-    final password = passwordController.text;
-    if (!RegExp(r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$').hasMatch(password)) {
-      _showError(context, "Password must be 8+ characters, include letters, numbers, and symbols.");
-      return false;
-    }
-
-    // Confirm password validation
-    if (password != confirmPasswordController.text) {
+    if (passwordController.text != confirmPasswordController.text) {
       _showError(context, "Passwords do not match.");
       return false;
     }

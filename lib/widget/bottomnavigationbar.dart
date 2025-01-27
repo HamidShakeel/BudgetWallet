@@ -50,9 +50,10 @@ class _BottomState extends State<Bottom> {
                     index_color = 1;
                   });
                 },
-                child: Icon(
-                  Icons.bar_chart_outlined,
-                  size: 30,
+                child: Image.asset(
+                  'assets/graph.png',
+                  width: 40,
+                  height: 30,
                   color: index_color == 1 ? Color(0xff368983) : Colors.grey,
                 ),
               ),

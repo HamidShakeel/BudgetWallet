@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_on_boarding/screens/homeMain.dart';
 import 'package:flutter_on_boarding/widget/bottomnavigationbar.dart';
 
-
 class QuestionnairePage extends StatefulWidget {
   @override
   _QuestionnairePageState createState() => _QuestionnairePageState();
@@ -20,7 +19,10 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Questionnaire", style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          "Questionnaire",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
         foregroundColor: Colors.black,
@@ -31,36 +33,33 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 "Please answer these questions for the best experience.",
                 style: TextStyle(color: Colors.black54),
               ),
-              SizedBox(height: 20),
-              Text("Personal Questions.", style: TextStyle(fontWeight: FontWeight.bold)),
-              SizedBox(height: 10),
-              _buildTextField("Date of Birth *", "DD/MM/YYYY"),
+              const SizedBox(height: 20),
+              const Text("Personal Questions.", style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              _buildTextField("Date of Birth *", "DD/MM/YYYY"), // Updated Date of Birth Field
               _buildDropdown("Profession *", ["Student", "Employee"]),
               _buildDropdown("Marital Status *", ["Single", "Married"]),
-              //
-              // // Conditional field for family members if married
+
               if (maritalStatus == "Married")
                 _buildTextField("Number of Family Members *", "Enter number"),
 
-              SizedBox(height: 20),
-              Text("Add Recurring Expenses.", style: TextStyle(fontWeight: FontWeight.bold)),
-              SizedBox(height: 10),
+              const SizedBox(height: 20),
+              const Text("Add Recurring Expenses.", style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              _buildTextField("Expected Income", "Enter your expected monthly income"),
               _buildTextField("Electricity", "Rs 19,000"),
               _buildTextField("Fees", "Rs 208,000"),
               _buildTextField("Gas", "Rs 1,320"),
               _buildTextField("Rent", "Rs 25,000"),
               _buildDropdown("Monthly Loans ?", ["Car Loan", "House Loan", "None"]),
 
-              // Added Expected Income field
-              _buildTextField("Expected Income", "Enter your expected monthly income"),
-
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Row(
-                children: [
+                children: const [
                   Text(
                     "Select Categories where you spend most.",
                     style: TextStyle(fontWeight: FontWeight.bold),
@@ -71,9 +70,9 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                   ),
                 ],
               ),
-              Text("(At least select any 3)", style: TextStyle(color: Colors.black54)),
+              const Text("(At least select any 3)", style: TextStyle(color: Colors.black54)),
               _buildCheckboxList(categories),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Center(
                 child: ElevatedButton(
                   onPressed: selectedCategories.length >= 3
@@ -85,14 +84,14 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                     );
                   }
                       : null,
-                  child: Text("Submit"),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF07574B),
-                    padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    backgroundColor: const Color(0xFF07574B),
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
                   ),
+                  child: const Text("Submit"),
                 ),
               ),
             ],
@@ -111,7 +110,8 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
             : TextInputType.text,
         inputFormatters: label == "Date of Birth *"
             ? [
-          FilteringTextInputFormatter.digitsOnly,
+          LengthLimitingTextInputFormatter(10), // Limit input to 10 characters
+          FilteringTextInputFormatter.digitsOnly, // Allow only numeric input
           TextInputFormatter.withFunction((oldValue, newValue) {
             String text = newValue.text;
             if (text.length > 2 && text[2] != '/') {
@@ -130,7 +130,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
         decoration: InputDecoration(
           labelText: label,
           hintText: hintText,
-          border: OutlineInputBorder(),
+          border: const OutlineInputBorder(),
         ),
         onChanged: label == "Number of Family Members *"
             ? (value) {
@@ -148,7 +148,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
       child: DropdownButtonFormField<String>(
         decoration: InputDecoration(
           labelText: label,
-          border: OutlineInputBorder(),
+          border: const OutlineInputBorder(),
         ),
         value: dropdownValue,
         items: options.map((String value) {
@@ -183,7 +183,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
               }
             });
           },
-          activeColor: Color(0xFF07574B),
+          activeColor: const Color(0xFF07574B),
         );
       }).toList(),
     );
